@@ -19,7 +19,10 @@ export const UploadForm = ({ onSubmit }) => {
     setFormData({ ...formData, audioFile: file });
   };
 
-  const handleSpeakerChange = (e, speakerId) => {
+  const handleSpeakerChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+    speakerId: string
+  ) => {
     const newMapping = { ...formData.speakerMapping };
     newMapping[speakerId] = e.target.value;
     setFormData({ ...formData, speakerMapping: newMapping });
