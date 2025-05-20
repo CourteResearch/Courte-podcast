@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.egg-info/
+.env
+.env.*
+*.log
+
+# Celery/Redis
+celerybeat-schedule
+*.pid
+
+# VSCode
+.vscode/
+
+# Node/React
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/frontend/build/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.local
+docker-compose.override.yml
+
+# Output/Generated
+*.mp3
+*.mp4
+audio_*.mp3
+output_*.mp4
+blender_scene_data.json
+
+# Misc
+*.bak
+*.swp
+*.tmp
