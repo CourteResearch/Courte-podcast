@@ -48,6 +48,8 @@ output_videos/
 *.bak
 *.swp
 *.tmp
+.aider.chat.history.md
+.aider.input.history
 
 .aider
 *aider
