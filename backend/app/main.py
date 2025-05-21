@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
+@app.get("/", response_class=JSONResponse)
 def read_root():
     return {"message": "PodVision Studio 3D MVP Backend"}
 
@@ -36,10 +36,16 @@ async def submit_job(
     audio_file: UploadFile = File(...),
     speaker_mapping: str = Form(...)
 ):
+    logger.info("submit_job endpoint called")
     job_id = str(uuid4())
     logger.info(f"Received new job submission: {job_id}")
+
+    # Ensure the temporary audio directory exists
+    temp_audio_dir = "temp_audio"
+    os.makedirs(temp_audio_dir, exist_ok=True)
+
     # Save uploaded audio file
-    audio_save_path = f"audio_{job_id}.mp3"
+    audio_save_path = os.path.join(temp_audio_dir, f"audio_{job_id}.mp3")
     with open(audio_save_path, "wb") as buffer:
         shutil.copyfileobj(audio_file.file, buffer)
     logger.info(f"Saved audio file for job {job_id} at {audio_save_path}")

@@ -2,12 +2,12 @@ from celery import Celery
 
 celery = Celery('tasks', broker='redis://localhost:6379/0')
 
-from services.video_processor_3d import create_3d_video_from_audio
-from models.job import Job
+from app.services.video_processor_3d import create_3d_video_from_audio
+from app.models.job import Job
 import os
 
 # jobs dict will be imported from jobs_store
-from jobs_store import jobs
+from app.jobs_store import jobs
 
 import time
 import logging
@@ -15,10 +15,17 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+import os
+
 @celery.task
 def process_video_task(job_id, audio_save_path, mapping):
     logger.info(f"Started processing job {job_id}")
-    output_video_path = f"output_{job_id}.mp4"
+
+    # Ensure the output videos directory exists
+    output_videos_dir = "output_videos"
+    os.makedirs(output_videos_dir, exist_ok=True)
+
+    output_video_path = os.path.join(output_videos_dir, f"output_{job_id}.mp4")
     job = jobs.get(job_id)
     try:
         # Simulate progress updates

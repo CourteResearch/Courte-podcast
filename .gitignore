@@ -41,8 +41,14 @@ docker-compose.override.yml
 audio_*.mp3
 output_*.mp4
 blender_scene_data.json
+temp_audio/
+output_videos/
 
 # Misc
 *.bak
 *.swp
 *.tmp
+
+.aider
+*aider
+aider/

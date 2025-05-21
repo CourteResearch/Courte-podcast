@@ -59,12 +59,6 @@ function App() {
     }
   }, [polling, jobId]);
 
-  const handleDownload = () => {
-    if (jobId && status === 'completed') {
-      window.open(`http://localhost:8000/download/${jobId}`, '_blank');
-    }
-  };
-
   return (
     <div
       style={{
@@ -98,42 +92,7 @@ function App() {
             textAlign: 'center',
           }}
         >
-          <h2 style={{ color: '#2d3748', fontWeight: 700, marginBottom: 12 }}>
-            Job ID: {jobId}
-          </h2>
-          <p
-            style={{
-              color:
-                status === 'completed'
-                  ? '#2c7a7b'
-                  : status === 'failed'
-                  ? '#c53030'
-                  : '#4a5568',
-              fontWeight: 500,
-              fontSize: 18,
-              marginBottom: 18,
-            }}
-          >
-            Status: {status}
-          </p>
-          {status === 'completed' && (
-            <button
-              onClick={handleDownload}
-              style={{
-                padding: '12px 24px',
-                background: '#38a169',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 8,
-                fontWeight: 600,
-                fontSize: 16,
-                cursor: 'pointer',
-                marginTop: 10,
-              }}
-            >
-              Download Video
-            </button>
-          )}
+          <JobStatus status={status} jobId={jobId} /> {/* Use JobStatus component */}
           {status === 'failed' && (
             <div
               style={{
