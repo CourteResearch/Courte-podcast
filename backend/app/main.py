@@ -19,8 +19,8 @@ def read_root():
     return {"message": "PodVision Studio 3D MVP Backend"}
 
 from uuid import uuid4
-from models.job import Job
-from jobs_store import jobs
+from app.models.job import Job
+from app.jobs_store import jobs
 
 from fastapi import UploadFile, File, Form
 import shutil

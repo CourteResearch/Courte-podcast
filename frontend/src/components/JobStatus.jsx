@@ -1,5 +1,5 @@
 import React from 'react';
-import { downloadVideo } from '../../services/api';
+import { downloadVideo } from '../services/api';
 
 export const JobStatus = ({ status, jobId }) => {
   const handleDownload = () => {
