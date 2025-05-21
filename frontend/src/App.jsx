@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UploadForm } from './components/UploadForm';
+import { JobStatus } from './components/JobStatus'; // Import JobStatus
 import { fetchJobStatus, submitJob } from './services/api';
 
 function App() {
