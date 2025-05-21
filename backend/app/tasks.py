@@ -1,6 +1,8 @@
 from celery import Celery
 
-celery = Celery('tasks', broker='redis://localhost:6379/0')
+import os
+celery = Celery('tasks', broker=os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0'))
+celery.conf.result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 
 from app.services.video_processor_3d import create_3d_video_from_audio
 from app.models.job import Job

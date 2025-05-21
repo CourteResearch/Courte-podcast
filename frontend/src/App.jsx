@@ -93,7 +93,7 @@ function App() {
             textAlign: 'center',
           }}
         >
-          <JobStatus status={status} jobId={jobId} /> {/* Use JobStatus component */}
+          <JobStatus status={status} jobId={jobId} progress={progress} /> {/* Use JobStatus component */}
           {status === 'failed' && (
             <div
               style={{
