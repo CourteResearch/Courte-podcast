@@ -4,6 +4,9 @@ FROM python:3.9-slim-buster
 # Set the working directory in the container
 WORKDIR /app
 
+# Copy 3D assets
+COPY 3d_assets/ /app/3d_assets/
+
 # Install Blender and FFmpeg
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

@@ -56,13 +56,10 @@ async def submit_job(
     logger.info(f"Created job entry for {job_id}")
 
     # Asynchronous processing: trigger Celery task
-    from tasks import process_video_task
     logger.info(f"Dispatching Celery task for job {job_id}")
     process_video_task.delay(job_id, audio_save_path, mapping)
 
     return JSONResponse(content={"job_id": job_id}, status_code=status.HTTP_200_OK)
-
-from .tasks import process_video_task
 
 @app.get("/job-status/{job_id}")
 def job_status(job_id: str):

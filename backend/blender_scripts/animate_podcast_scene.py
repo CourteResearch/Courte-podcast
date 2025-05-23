@@ -34,19 +34,26 @@ def import_glb(filepath):
     # Return the newly imported objects (assuming they are selected after import)
     return bpy.context.selected_objects
 
+def import_fbx(filepath):
+    """Imports an FBX file and returns the imported objects."""
+    bpy.ops.import_scene.fbx(filepath=filepath)
+    # Return the newly imported objects (assuming they are selected after import)
+    return bpy.context.selected_objects
+
 def setup_scene(data):
     """Sets up the 3D scene based on input data."""
     clear_scene()
 
-    # Import studio environment
+    # Import studio environment (FBX)
     studio_path = Path(data["studio_model"])
     if studio_path.exists():
         print(f"Importing studio environment: {studio_path}")
-        import_glb(str(studio_path))
+        import_fbx(str(studio_path)) # Use import_fbx
     else:
-        print(f"Warning: Studio model not found at {studio_path}")
+        print(f"Error: Studio model not found at {studio_path}. Please ensure 'studio_environment.fbx' is in '3d_assets/'.")
+        sys.exit(1) # Exit if critical model is missing
 
-    # Import male avatar
+    # Import male avatar (GLB)
     male_path = Path(data["male_model"])
     male_avatar = None
     if male_path.exists():
@@ -59,9 +66,9 @@ def setup_scene(data):
             male_avatar.name = "MaleAvatar"
             print(f"Male avatar imported and positioned: {male_avatar.location}")
     else:
-        print(f"Warning: Male avatar model not found at {male_path}")
+        print(f"Warning: Male avatar model not found at {male_path}. Please ensure 'male_avatar.glb' is in '3d_assets/'.")
 
-    # Import female avatar
+    # Import female avatar (GLB)
     female_path = Path(data["female_model"])
     female_avatar = None
     if female_path.exists():
@@ -74,7 +81,7 @@ def setup_scene(data):
             female_avatar.name = "FemaleAvatar"
             print(f"Female avatar imported and positioned: {female_avatar.location}")
     else:
-        print(f"Warning: Female avatar model not found at {female_path}")
+        print(f"Warning: Female avatar model not found at {female_path}. Please ensure 'female_avatar.glb' is in '3d_assets/'.")
 
     # Add a camera if none exists
     if not bpy.context.scene.camera:
