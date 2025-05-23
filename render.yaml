@@ -3,7 +3,6 @@ services:
     name: podvision-backend
     runtime: docker
     # buildCommand and startCommand are handled by Dockerfile
-    rootDir: backend
     healthCheckPath: /
     envVars:
       - key: CELERY_BROKER_URL
@@ -20,7 +19,6 @@ services:
     name: podvision-celery-worker
     runtime: docker
     # buildCommand and startCommand are handled by Dockerfile
-    rootDir: backend
     envVars:
       - key: CELERY_BROKER_URL
         fromService:
