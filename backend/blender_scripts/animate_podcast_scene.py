@@ -28,12 +28,6 @@ def clear_scene():
     for image in bpy.data.images:
         bpy.data.images.remove(image)
 
-def import_glb(filepath):
-    """Imports a GLB file and returns the imported objects."""
-    bpy.ops.import_scene.gltf(filepath=filepath)
-    # Return the newly imported objects (assuming they are selected after import)
-    return bpy.context.selected_objects
-
 def import_fbx(filepath):
     """Imports an FBX file and returns the imported objects."""
     bpy.ops.import_scene.fbx(filepath=filepath)
@@ -53,35 +47,16 @@ def setup_scene(data):
         print(f"Error: Studio model not found at {studio_path}. Please ensure 'studio_environment.fbx' is in '3d_assets/'.")
         sys.exit(1) # Exit if critical model is missing
 
-    # Import male avatar (GLB)
-    male_path = Path(data["male_model"])
-    male_avatar = None
-    if male_path.exists():
-        print(f"Importing male avatar: {male_path}")
-        male_avatar_objects = import_glb(str(male_path))
-        if male_avatar_objects:
-            male_avatar = male_avatar_objects[0] # Assuming the main object is the first
-            male_avatar.location = (-1.5, 0, 0) # Example position
-            male_avatar.scale = (0.5, 0.5, 0.5) # Example scale
-            male_avatar.name = "MaleAvatar"
-            print(f"Male avatar imported and positioned: {male_avatar.location}")
-    else:
-        print(f"Warning: Male avatar model not found at {male_path}. Please ensure 'male_avatar.glb' is in '3d_assets/'.")
+    # Find male and female avatars within the imported scene
+    # IMPORTANT: You will need to replace "MaleCharacterName" and "FemaleCharacterName"
+    # with the actual names of the male and female character objects in your FBX file.
+    male_avatar = bpy.data.objects.get("MaleCharacterName")
+    female_avatar = bpy.data.objects.get("FemaleCharacterName")
 
-    # Import female avatar (GLB)
-    female_path = Path(data["female_model"])
-    female_avatar = None
-    if female_path.exists():
-        print(f"Importing female avatar: {female_path}")
-        female_avatar_objects = import_glb(str(female_path))
-        if female_avatar_objects:
-            female_avatar = female_avatar_objects[0] # Assuming the main object is the first
-            female_avatar.location = (1.5, 0, 0) # Example position
-            female_avatar.scale = (0.5, 0.5, 0.5) # Example scale
-            female_avatar.name = "FemaleAvatar"
-            print(f"Female avatar imported and positioned: {female_avatar.location}")
-    else:
-        print(f"Warning: Female avatar model not found at {female_path}. Please ensure 'female_avatar.glb' is in '3d_assets/'.")
+    if not male_avatar:
+        print("Warning: Male avatar object 'MaleCharacterName' not found in the imported FBX. Please update the script with the correct object name.")
+    if not female_avatar:
+        print("Warning: Female avatar object 'FemaleCharacterName' not found in the imported FBX. Please update the script with the correct object name.")
 
     # Add a camera if none exists
     if not bpy.context.scene.camera:

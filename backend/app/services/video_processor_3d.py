@@ -46,8 +46,7 @@ def create_3d_video_from_audio(audio_path_str: str, output_video_path_str: str, 
         "speaker_mapping": speaker_mapping,
         "diarization_segments": segments, # Pass segments to Blender
         "studio_model": str(Path(settings.MODEL_ASSETS_DIR) / "studio_environment.fbx"), # Changed to FBX
-        "male_model": str(Path(settings.MODEL_ASSETS_DIR) / "male_avatar.glb"),
-        "female_model": str(Path(settings.MODEL_ASSETS_DIR) / "female_avatar.glb"),
+        # Avatars are part of the studio_environment.fbx, no separate import needed
         "output_render_path": str(Path(output_video_path_str).with_suffix('.blend_render.mp4')) # Blender will render to this temp path
     }
 
