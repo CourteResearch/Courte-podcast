@@ -62,6 +62,8 @@ async def submit_job(
 
     return JSONResponse(content={"job_id": job_id}, status_code=status.HTTP_200_OK)
 
+from .tasks import process_video_task
+
 @app.get("/job-status/{job_id}")
 def job_status(job_id: str):
     job = jobs.get(job_id)
