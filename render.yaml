@@ -1,9 +1,8 @@
 services:
   - type: web
     name: podvision-backend
-    runtime: python
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    runtime: docker
+    # buildCommand and startCommand are handled by Dockerfile
     rootDir: backend
     healthCheckPath: /
     envVars:
@@ -19,9 +18,8 @@ services:
           property: connectionString
   - type: worker
     name: podvision-celery-worker
-    runtime: python
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "celery -A app.tasks worker --loglevel=info"
+    runtime: docker
+    # buildCommand and startCommand are handled by Dockerfile
     rootDir: backend
     envVars:
       - key: CELERY_BROKER_URL
