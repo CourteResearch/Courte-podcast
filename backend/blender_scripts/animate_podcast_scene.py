@@ -47,17 +47,6 @@ def setup_scene(data):
         print(f"Error: Studio model not found at {studio_path}. Please ensure 'studio_environment.fbx' is in '3d_assets/'.")
         sys.exit(1) # Exit if critical model is missing
 
-    # Find male and female avatars within the imported scene
-    # IMPORTANT: You will need to replace "MaleCharacterName" and "FemaleCharacterName"
-    # with the actual names of the male and female character objects in your FBX file.
-    male_avatar = bpy.data.objects.get("MaleCharacterName")
-    female_avatar = bpy.data.objects.get("FemaleCharacterName")
-
-    if not male_avatar:
-        print("Warning: Male avatar object 'MaleCharacterName' not found in the imported FBX. Please update the script with the correct object name.")
-    if not female_avatar:
-        print("Warning: Female avatar object 'FemaleCharacterName' not found in the imported FBX. Please update the script with the correct object name.")
-
     # Add a camera if none exists
     if not bpy.context.scene.camera:
         bpy.ops.object.camera_add(location=(0, -5, 2), rotation=(1.2, 0, 0))
@@ -69,12 +58,18 @@ def setup_scene(data):
         bpy.ops.object.light_add(type='SUN', location=(0, 0, 5))
         print("Added default light.")
 
-    return male_avatar, female_avatar
+    # No need to return avatars as we are animating camera instead of avatars directly
+    return None, None
 
-def animate_scene(data, male_avatar, female_avatar):
-    """Animates the scene based on diarization segments."""
+def animate_scene(data):
+    """Animates the scene based on diarization segments, focusing on camera movement."""
     diarization_segments = data.get("diarization_segments", [])
     audio_path = data["audio_path"]
+    camera = bpy.context.scene.camera
+
+    if not camera:
+        print("Error: No camera found in scene for animation.")
+        return
 
     # Set scene frame rate
     bpy.context.scene.render.fps = 24 # Standard frame rate
@@ -90,61 +85,48 @@ def animate_scene(data, male_avatar, female_avatar):
         print(f"Could not load audio for duration: {e}. Using default frame_end.")
         bpy.context.scene.frame_end = 250 # Default to 10 seconds at 24fps
 
-    # Ensure avatars exist before trying to animate
-    if not male_avatar and not female_avatar:
-        print("No avatars found to animate.")
-        return
+    # Define camera positions for male and female sides
+    # These are example coordinates and rotations. You might need to adjust them
+    # based on your specific FBX scene layout.
+    camera_male_pos = (-2.5, -3.5, 1.5)
+    camera_male_rot = (1.3, 0, -0.7) # (pitch, yaw, roll) in radians
 
-    # Simple animation: make active speaker slightly visible/active
-    # This is a placeholder for actual lip-sync or body animation
+    camera_female_pos = (2.5, -3.5, 1.5)
+    camera_female_rot = (1.3, 0, 0.7) # (pitch, yaw, roll) in radians
+
+    # Set interpolation to linear for smoother transitions
+    for fcurve in camera.animation_data.action.fcurves:
+        for kf in fcurve.keyframe_points:
+            kf.interpolation = 'LINEAR'
+
+    # Animate camera based on speaker segments
+    current_frame = 1
     for segment in diarization_segments:
         start_frame = int(segment["start"] * bpy.context.scene.render.fps)
         end_frame = int(segment["end"] * bpy.context.scene.render.fps)
         speaker = segment["speaker"]
 
-        # Ensure objects are not None before accessing properties
-        if male_avatar:
-            male_avatar.hide_render = True
-            male_avatar.hide_viewport = True
-            male_avatar.keyframe_insert(data_path="hide_render", frame=start_frame - 1)
-            male_avatar.keyframe_insert(data_path="hide_viewport", frame=start_frame - 1)
-        if female_avatar:
-            female_avatar.hide_render = True
-            female_avatar.hide_viewport = True
-            female_avatar.keyframe_insert(data_path="hide_render", frame=start_frame - 1)
-            female_avatar.keyframe_insert(data_path="hide_viewport", frame=start_frame - 1)
+        # Ensure camera is at the correct position/rotation at the start of the segment
+        if speaker == "male":
+            camera.location = camera_male_pos
+            camera.rotation_euler = camera_male_rot
+        elif speaker == "female":
+            camera.location = camera_female_pos
+            camera.rotation_euler = camera_female_rot
 
-        if speaker == "male" and male_avatar:
-            male_avatar.hide_render = False
-            male_avatar.hide_viewport = False
-            male_avatar.keyframe_insert(data_path="hide_render", frame=start_frame)
-            male_avatar.keyframe_insert(data_path="hide_viewport", frame=start_frame)
-            male_avatar.hide_render = True
-            male_avatar.hide_viewport = True
-            male_avatar.keyframe_insert(data_path="hide_render", frame=end_frame)
-            male_avatar.keyframe_insert(data_path="hide_viewport", frame=end_frame)
-        elif speaker == "female" and female_avatar:
-            female_avatar.hide_render = False
-            female_avatar.hide_viewport = False
-            female_avatar.keyframe_insert(data_path="hide_render", frame=start_frame)
-            female_avatar.keyframe_insert(data_path="hide_viewport", frame=start_frame)
-            female_avatar.hide_render = True
-            female_avatar.hide_viewport = True
-            female_avatar.keyframe_insert(data_path="hide_render", frame=end_frame)
-            female_avatar.keyframe_insert(data_path="hide_viewport", frame=end_frame)
+        camera.keyframe_insert(data_path="location", frame=start_frame)
+        camera.keyframe_insert(data_path="rotation_euler", frame=start_frame)
 
-    # Set all avatars to hidden after the last segment
-    last_frame = bpy.context.scene.frame_end
-    if male_avatar:
-        male_avatar.hide_render = True
-        male_avatar.hide_viewport = True
-        male_avatar.keyframe_insert(data_path="hide_render", frame=last_frame)
-        male_avatar.keyframe_insert(data_path="hide_viewport", frame=last_frame)
-    if female_avatar:
-        female_avatar.hide_render = True
-        female_avatar.hide_viewport = True
-        female_avatar.keyframe_insert(data_path="hide_render", frame=last_frame)
-        female_avatar.keyframe_insert(data_path="hide_viewport", frame=last_frame)
+        # If this is not the last segment, set keyframe for next segment's start
+        if segment != diarization_segments[-1]:
+            next_segment_start_frame = int(diarization_segments[diarization_segments.index(segment) + 1]["start"] * bpy.context.scene.render.fps)
+            # Ensure camera holds position until just before next segment starts
+            camera.keyframe_insert(data_path="location", frame=next_segment_start_frame - 1)
+            camera.keyframe_insert(data_path="rotation_euler", frame=next_segment_start_frame - 1)
+        else:
+            # For the last segment, hold position until the end of the animation
+            camera.keyframe_insert(data_path="location", frame=bpy.context.scene.frame_end)
+            camera.keyframe_insert(data_path="rotation_euler", frame=bpy.context.scene.frame_end)
 
 
 def configure_render(output_path):
@@ -157,7 +139,14 @@ def configure_render(output_path):
     bpy.context.scene.render.ffmpeg.max_b_frames = 2
     bpy.context.scene.render.ffmpeg.audio_codec = 'AAC'
     bpy.context.scene.render.filepath = output_path
+
+    # Set resolution to 16:9 (e.g., 1920x1080)
+    bpy.context.scene.render.resolution_x = 1920
+    bpy.context.scene.render.resolution_y = 1080
+    bpy.context.scene.render.resolution_percentage = 100 # Render at 100% of set resolution
+
     print(f"Render output path set to: {output_path}")
+    print(f"Render resolution set to {bpy.context.scene.render.resolution_x}x{bpy.context.scene.render.resolution_y}")
 
 def main():
     print("Blender script started.")
@@ -165,7 +154,7 @@ def main():
         print("Error: No arguments passed to Blender script.")
         sys.exit(1)
 
-    idx = sys.argv.index("--")
+    idx = sys.argv[2:].index("--") + 2 # Adjust index for --background --python
     args = sys.argv[idx+1:]
     if not args:
         print("Error: No data file path provided.")
@@ -180,8 +169,8 @@ def main():
         data = json.load(f)
     print(f"Loaded data from {data_file_path}")
 
-    male_avatar, female_avatar = setup_scene(data)
-    animate_scene(data, male_avatar, female_avatar)
+    setup_scene(data)
+    animate_scene(data) # Pass only data, as avatars are not separate
     configure_render(data["output_render_path"])
 
     print("Starting Blender render...")
