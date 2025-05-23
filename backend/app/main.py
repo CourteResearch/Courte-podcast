@@ -28,6 +28,8 @@ import os
 import json
 import logging
 
+from .tasks import process_video_task # Moved import to top
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
